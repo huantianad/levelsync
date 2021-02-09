@@ -63,12 +63,12 @@ def loop(path):
     new_levels = [x for x in site_urls if x not in file_data.keys()]
     yeet_levels = [x for x in file_data.keys() if x not in site_urls]
 
-    # Downloads new levels and puts url and name in a list.
-    new_names = [(x, download(x, path)) for x in new_levels]
-
     # Move yeeted levels
     for level in yeet_levels:
         shutil.move(f"{path}/{file_data[level]}", f"{path}/yeeted")
+
+    # Downloads new levels and puts url and name in a list.
+    new_names = [(x, download(x, path)) for x in new_levels]
 
     # Update file list
     file_data.update(new_names)
