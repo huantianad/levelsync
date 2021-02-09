@@ -65,7 +65,11 @@ def loop(path):
 
     # Move yeeted levels
     for level in yeet_levels:
-        shutil.move(f"{path}/{file_data[level]}", f"{path}/yeeted")
+        try:
+            shutil.move(f"{path}/{file_data[level]}", f"{path}/yeeted")
+        except:
+            shutil.rmtree(f"{path}/yeeted/{file_data[level]}")
+            shutil.move(f"{path}/{file_data[level]}", f"{path}/yeeted")
 
     # Downloads new levels and puts url and name in a list.
     new_names = [(x, download(x, path)) for x in new_levels]
