@@ -32,6 +32,9 @@ def download(url, path):
     else:
         name = url.split('/')[-1]
 
+    for char in '<>:"/\|?* ':
+        name = name.replace(char, '')
+
     if os.path.exists(f'{path}/{name}'):
         name = rename(name, 1, path)
 
