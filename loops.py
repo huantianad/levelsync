@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import zipfile
+import re
 
 import requests
 import requests_cache
@@ -25,8 +26,9 @@ def rename(name, index, path):
 
 
 def download(url, path):
-    if url.startswith('https://drive.google.com/'):
-        name = url.split('id=')[-1] + ".rdzip"
+    if url.startswith('https://drive.google.com/') or url.startswith("https://www.dropbox.com/s/"):
+        r = requests.get(url)
+        name = re.findall('filename=(.+)', r.headers.get('Content-Disposition'))[0].split(";")[0].replace('"', "")
     else:
         name = url.split('/')[-1]
 
@@ -89,4 +91,4 @@ def loop(path):
 
 
 if __name__ == "__main__":
-    loop("levels")
+    loop(r"C:\Users\david\Documents\Rhythm Doctor\Levels")
