@@ -37,7 +37,7 @@ def download(url, path):
     else:
         name = url.split('/')[-1]
 
-    for char in '<>:"/\|?* ':
+    for char in r'<>:"/\|?* ':
         name = name.replace(char, '')
 
     if os.path.exists(f'{path}/{name}'):
@@ -106,4 +106,4 @@ def loop(config):
 
 
 if __name__ == "__main__":
-    loop(r"levels")
+    loop({"path": r"levels", "verified_only": True})
