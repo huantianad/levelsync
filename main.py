@@ -9,8 +9,8 @@ def main():
     create_files(config['path'])
 
     while True:
-        loop(config['path'])
-        time.sleep(15)
+        loop(config)
+        time.sleep(config['interval'])
 
 
 if __name__ == '__main__':

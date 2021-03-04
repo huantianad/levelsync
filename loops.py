@@ -11,9 +11,14 @@ import requests
 # requests_cache.install_cache('cool_cache')
 
 
-def get_site():
+def get_site(verified_only):
     url = 'https://script.google.com/macros/s/AKfycbzm3I9ENulE7uOmze53cyDuj7Igi7fmGiQ6w045fCRxs_sK3D4/exec'
-    r = json.loads(requests.get(url).content)
+    r = requests.get(url).json()
+
+    # If verified only is enabled, we want to get rid of all unverified levels from site_urls
+    if verified_only:
+        r = [x for x in r if x.get('verified')]
+
     return [x['download_url'] for x in r]
 
 
@@ -53,9 +58,12 @@ def download(url, path):
     return name
 
 
-def loop(path):
+def loop(config):
+    path = config['path']
+    verified_only = config['verified_only']
+
     try:
-        site_urls = get_site()
+        site_urls = get_site(verified_only)
     except:
         return
 
@@ -98,4 +106,4 @@ def loop(path):
 
 
 if __name__ == "__main__":
-    loop(r"C:\Users\david\Documents\Rhythm Doctor\Levels")
+    loop(r"levels")
