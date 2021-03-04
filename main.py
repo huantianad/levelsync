@@ -10,7 +10,7 @@ def main():
 
     while True:
         loop(config)
-        time.sleep(config['interval'])
+        time.sleep(config.getint('interval'))
 
 
 if __name__ == '__main__':

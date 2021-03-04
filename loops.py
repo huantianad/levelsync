@@ -7,6 +7,7 @@ import re
 import requests
 # import requests_cache
 
+from initial import read_config
 
 # requests_cache.install_cache('cool_cache')
 
@@ -48,6 +49,7 @@ def download(url, path):
         for ch in r:
             f.write(ch)
     try:
+        # Code to unzip the .rdzip file
         with zipfile.ZipFile(f'{path}/{name}', 'r') as file_zip:
             file_zip.extractall(f'{path}/{name.split(".")[0]}')
         os.remove(f'{path}/{name}')
@@ -60,7 +62,7 @@ def download(url, path):
 
 def loop(config):
     path = config['path']
-    verified_only = config['verified_only']
+    verified_only = config.getboolean('verified_only')
 
     try:
         site_urls = get_site(verified_only)
@@ -106,4 +108,4 @@ def loop(config):
 
 
 if __name__ == "__main__":
-    loop({"path": r"levels", "verified_only": True})
+    loop(read_config())
