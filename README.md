@@ -2,6 +2,7 @@
 A program that syncs your RD level folder with the site.
 
 ## How to Use
+NOTE: I would recommend using this on an EMPTY level folder as the program downloads all leves on first time run.
 1. Download the program from [the releases page](https://github.com/huantianad/LevelSync/releases/).
 2. Unzip the program into a directory.
 3. Edit the config.ini file with your levels directory.
