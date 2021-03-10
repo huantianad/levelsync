@@ -5,3 +5,7 @@ official/
 main.spec
 .idea/
 .python-version
+LevelSync.spec
+personal/
+__pycache__/
+LevelSyncLoop1.spec
