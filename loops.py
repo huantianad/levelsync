@@ -1,12 +1,13 @@
 import json
+import logging
 import os
+import re
 import shutil
 import zipfile
-import re
 
 import requests
 
-from initial import read_config
+from initial import read_config, log_setup
 
 
 def get_site(verified_only):
@@ -52,7 +53,7 @@ def download(url, path):
         os.remove(f'{path}/{name}')
         os.rename(f'{path}/{name.split(".")[0]}', f'{path}/{name}')
     except zipfile.BadZipFile:
-        print("This level isn't an actual level")
+        logging.warning(f"{name} isn't an actual level")
 
     return name
 
@@ -63,7 +64,7 @@ def loop(config):
 
     try:
         site_urls = get_site(verified_only)
-    except:
+    except Exception:
         return
 
     with open(f"{path}/sync.json", "r") as file:
@@ -77,7 +78,8 @@ def loop(config):
     for level in yeet_levels:
         try:
             shutil.move(f"{path}/{file_data[level]}", f"{path}/yeeted")
-        except:
+        except Exception:
+            # Sometimes a folder with the same name already exists and python doesn't like that
             shutil.rmtree(f"{path}/yeeted/{file_data[level]}")
             shutil.move(f"{path}/{file_data[level]}", f"{path}/yeeted")
 
@@ -88,21 +90,26 @@ def loop(config):
     file_data.update(new_names)
     for level in yeet_levels:
         if not file_data.pop(level, None):
-            print("Tried to delete a non-existent level from sync.data")
+            logging.error("Tried to delete a non-existent level from sync.data")
 
     with open(f"{path}/sync.json", "w") as file:
         file.write(json.dumps(file_data, indent=4))
 
     if new_levels:
-        print(new_levels)
+        logging.info(new_levels)
     else:
-        print("No new levels found")
+        logging.info("No new levels found")
 
     if yeet_levels:
-        print(yeet_levels)
+        logging.info(yeet_levels)
     else:
-        print("No yeet levels found")
+        logging.info("No yeet levels found")
 
 
 if __name__ == "__main__":
-    loop(read_config())
+    log_setup()
+    try:
+        loop(read_config())
+    except Exception as e:
+        logging.exception("Something bad happened")
+        raise e

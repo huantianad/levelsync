@@ -1,4 +1,5 @@
 import configparser
+import logging
 import os
 
 
@@ -21,6 +22,14 @@ def create_files(path):
     if not os.path.exists(f"{path}/sync.json"):
         with open(f"{path}/sync.json", "w") as file:
             file.write("{}")
+
+
+def log_setup():
+    log_path = os.path.join(os.path.dirname(__file__), "log.txt")
+    logging.basicConfig(filename=log_path,
+                        filemode='w',
+                        format='%(name)s - %(levelname)s - %(message)s',
+                        level=logging.INFO)
 
 
 if __name__ == "__main__":
