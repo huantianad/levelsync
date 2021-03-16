@@ -5,11 +5,8 @@ import zipfile
 import re
 
 import requests
-# import requests_cache
 
 from initial import read_config
-
-# requests_cache.install_cache('cool_cache')
 
 
 def get_site(verified_only):

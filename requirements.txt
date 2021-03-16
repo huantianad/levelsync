@@ -5,5 +5,4 @@ idna==2.10
 pyinstaller==4.2
 pyinstaller-hooks-contrib==2020.11
 requests==2.25.1
-requests-cache==0.5.2
 urllib3==1.26.3
