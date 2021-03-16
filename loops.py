@@ -92,8 +92,9 @@ def loop(config):
         if not file_data.pop(level, None):
             logging.error("Tried to delete a non-existent level from sync.data")
 
-    with open(f"{path}/sync.json", "w") as file:
-        file.write(json.dumps(file_data, indent=4))
+    if new_levels or yeet_levels:
+        with open(f"{path}/sync.json", "w") as file:
+            file.write(json.dumps(file_data, indent=4))
 
     if new_levels:
         logging.info(new_levels)
