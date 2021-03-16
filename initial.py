@@ -1,11 +1,25 @@
 import configparser
 import logging
 import os
+import sys
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    if getattr(sys, 'frozen', False):
+        # If the application is run as a bundle, the PyInstaller bootloader
+        # extends the sys module by a flag frozen=True and sets the app
+        # path into variable _MEIPASS'.
+        application_path = os.path.dirname(sys.executable)
+    else:
+        application_path = os.path.dirname(os.path.abspath(__file__))
+
+    return os.path.join(application_path, relative_path)
 
 
 def read_config():
     # Find the config file relative to the file, not current directory
-    config_path = os.path.join(os.path.dirname(__file__), "config.ini")
+    config_path = resource_path('config.ini')
 
     # Reads the config file and returns it.
     config = configparser.ConfigParser()
@@ -25,7 +39,7 @@ def create_files(path):
 
 
 def log_setup():
-    log_path = os.path.join(os.path.dirname(__file__), "log.txt")
+    log_path = resource_path('log.txt')
     logging.basicConfig(filename=log_path,
                         filemode='w',
                         format='%(name)s - %(levelname)s - %(message)s',
