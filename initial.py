@@ -3,9 +3,12 @@ import os
 
 
 def read_config():
+    # Find the config file relative to the file, not current directory
+    config_path = os.path.join(os.path.dirname(__file__), "config.ini")
+
     # Reads the config file and returns it.
     config = configparser.ConfigParser()
-    config.read("config.ini")
+    config.read(config_path)
     return config['Main']
 
 
