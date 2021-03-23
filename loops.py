@@ -50,10 +50,19 @@ def download(url, path):
         # Code to unzip the .rdzip file
         with zipfile.ZipFile(f'{path}/{name}', 'r') as file_zip:
             file_zip.extractall(f'{path}/{name.split(".")[0]}')
+
+        # Remove the old rdzip
         os.remove(f'{path}/{name}')
         os.rename(f'{path}/{name.split(".")[0]}', f'{path}/{name}')
     except zipfile.BadZipFile:
+        # python detects that the file isn't a zip file, so we ignore trying to unzip it
         logging.warning(f"{name} isn't an actual level")
+    except OSError:
+        # python cannot physically unzip the file correctly, not really something we can fix.
+        logging.warning(f"{name} has some broken characters or stuff. It will be broken. Please tell a mod to fix")
+
+        # this will delete the attempted unzipped folder, just leaving the rdzip
+        shutil.rmtree(f'{path}/{name.split(".")[0]}')
 
     return name
 
