@@ -10,3 +10,4 @@ personal/
 __pycache__/
 LevelSyncLoop1.spec
 log.txt
+env/
