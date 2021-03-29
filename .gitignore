@@ -1,12 +1,27 @@
+# pyinstaller build files
 build/
 dist/
+main.spec
+LevelSync.spec
+LevelSyncLoop1.spec
+
+# Nuikta build files
+main.build
+main.onefile-build
+main.dist
+
+# Testing and such files
 levels/
 official/
-main.spec
+personal/
+
+# ide and other files
 .idea/
 .python-version
-LevelSync.spec
-personal/
 __pycache__/
-LevelSyncLoop1.spec
+
+# Logs
 log.txt
+
+# venv dir
+env/
