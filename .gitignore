@@ -19,6 +19,7 @@ personal/
 .idea/
 .python-version
 __pycache__/
+.vscode/
 
 # Logs
 log.txt

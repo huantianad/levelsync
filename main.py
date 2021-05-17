@@ -7,16 +7,17 @@ from loops import loop
 
 def main():
     log_setup()
+
     config = read_config()
     create_files(config['path'])
 
-    try:
-        while True:
-            loop(config)
+    while True:
+        try:
+            loop()
             time.sleep(config.getint('interval'))
-    except Exception as e:
-        logging.exception("Something bad happened")
-        raise e
+        except Exception as e:
+            logging.exception("Something bad happened!")
+            raise e
 
 
 if __name__ == '__main__':

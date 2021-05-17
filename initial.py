@@ -7,9 +7,6 @@ import sys
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     if getattr(sys, 'frozen', False):
-        # If the application is run as a bundle, the PyInstaller bootloader
-        # extends the sys module by a flag frozen=True and sets the app
-        # path into variable _MEIPASS'.
         application_path = os.path.dirname(sys.executable)
     else:
         application_path = os.path.dirname(os.path.abspath(__file__))
@@ -31,18 +28,18 @@ def create_files(path):
     # Creates required directories and files
     if not os.path.exists(path):
         os.mkdir(path)
+
     if not os.path.exists(f"{path}/yeeted"):
         os.mkdir(f"{path}/yeeted")
+
     if not os.path.exists(f"{path}/sync.json"):
         with open(f"{path}/sync.json", "w") as file:
             file.write("{}")
 
 
-def log_setup():
+def log_setup(filemode='w'):
     log_path = resource_path('log.txt')
-    logging.basicConfig(filename=log_path,
-                        filemode='w',
-                        format='%(name)s - %(levelname)s - %(message)s',
+    logging.basicConfig(filename=log_path, filemode=filemode, format='[%(asctime)s: %(levelname)s]: %(message)s',
                         level=logging.INFO)
 
 
