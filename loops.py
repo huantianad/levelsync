@@ -98,9 +98,11 @@ def download_level(url: str, path: typing.Union[str, bytes, os.PathLike]):
 
     full_path = rename(full_path)
 
-    # Downloads the level, writes it to a file
+    r = requests.get(url)
+    if r.status_code != 200:
+        logging.error(f"The level {url} was deleted. Please tell a mod about this.")
+
     with open(full_path, 'wb') as file:
-        r = requests.get(url)
         file.write(r.content)
 
     unzip_level(full_path)
@@ -133,10 +135,9 @@ def loop():
 
     # Move yeeted levels
     for level in yeet_levels:
-        if os.path.exists(os.path.join(path, 'yeeted', file_data[level])):
-            shutil.rmtree(os.path.join(path, 'yeeted', file_data[level]))
+        renamed = rename(os.path.join(path, 'yeeted', file_data[level]))
 
-        shutil.move(os.path.join(path, file_data[level]), os.path.join(path, 'yeeted'))
+        shutil.move(os.path.join(path, file_data[level]), renamed)
 
     # Downloads new levels and puts url and name in a list.
     new_names = {url: download_level(url, path) for url in new_levels}
