@@ -20,6 +20,7 @@ personal/
 .python-version
 __pycache__/
 .vscode/
+.directory
 
 # Logs
 log.txt
