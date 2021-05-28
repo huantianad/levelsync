@@ -4,7 +4,7 @@ import os
 import re
 import shutil
 import typing
-import zipfile
+from tempfile import TemporaryDirectory
 
 import requests
 
@@ -35,35 +35,27 @@ def rename(path: typing.Union[str, bytes, os.PathLike]):
         return path
 
 
-def unzip_level(path: typing.Union[str, bytes, os.PathLike]):
+def unzip_level(path: str) -> None:
     """
     Unzips the given level, and removes the old rdzip afterwards.
 
-    :param path: Path to the level to unzip
+    Args:
+        path (str): Path to the .rdzip to unzip
     """
 
-    # Remove the extension from the path as a temporary folder to extract the files to
-    extension_less_path = path.replace('.rdzip', '')
-    os.mkdir(extension_less_path)
+    with TemporaryDirectory() as tempdir:
+        try:
+            shutil.unpack_archive(path, tempdir, format="zip")
+            os.remove(path)
+            shutil.move(tempdir, path)
 
-    try:
-        with zipfile.ZipFile(path, 'r') as file_zip:
-            file_zip.extractall(extension_less_path)
+        except shutil.ReadError:
+            # python detects that the file isn't a zip file, so we ignore trying to unzip it
+            logging.warning(f"{path} isn't an actual level")
 
-        # Removes the old rdzip, then renames the folder to have the .rdzip extension
-        os.remove(path)
-        os.rename(extension_less_path, path)
-
-    except zipfile.BadZipFile:
-        # python detects that the file isn't a zip file, so we ignore trying to unzip it
-        logging.warning(f"{path} isn't an actual level")
-
-    except OSError:
-        # python cannot physically unzip the file correctly, not really something we can fix.
-        logging.warning(f"{path} has some broken characters or stuff. It will be broken. Please tell a mod to fix")
-
-        # this will delete the attempted unzipped folder, just leaving the rdzip
-        shutil.rmtree(extension_less_path)
+        except OSError:
+            # python cannot physically unzip the file correctly, not really something we can fix.
+            logging.warning(f"{path} has some broken characters or stuff. It will be broken. Please tell a mod to fix")
 
 
 def get_url_filename(url: str) -> str:
@@ -107,7 +99,8 @@ def download_level(url: str, path: typing.Union[str, bytes, os.PathLike]):
 
     unzip_level(full_path)
 
-    return full_path  # Returns the final path to the downloaded level
+    # the rest of the program only expects the level name to be outputed
+    return full_path.split('/')[-1]
 
 
 def loop():
@@ -135,9 +128,10 @@ def loop():
 
     # Move yeeted levels
     for level in yeet_levels:
-        renamed = rename(os.path.join(path, 'yeeted', file_data[level]))
+        level_path = file_data[level]
+        renamed = rename(os.path.join(path, 'yeeted', level_path))
 
-        shutil.move(os.path.join(path, file_data[level]), renamed)
+        shutil.move(os.path.join(path, level_path), renamed)
 
     # Downloads new levels and puts url and name in a list.
     new_names = {url: download_level(url, path) for url in new_levels}
