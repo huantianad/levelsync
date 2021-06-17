@@ -2,7 +2,6 @@
 build/
 dist/
 main.spec
-LevelSync.spec
 LevelSyncLoop1.spec
 
 # Nuikta build files
