@@ -29,11 +29,11 @@ def create_files(path):
     if not os.path.exists(path):
         os.mkdir(path)
 
-    if not os.path.exists(f"{path}/yeeted"):
-        os.mkdir(f"{path}/yeeted")
+    if not os.path.exists(os.path.join(path, '..', 'yeeted/')):
+        os.mkdir(os.path.join(path, '..', 'yeeted/'))
 
-    if not os.path.exists(f"{path}/sync.json"):
-        with open(f"{path}/sync.json", "w") as file:
+    if not os.path.exists(os.path.join(path, 'sync.json')):
+        with open(os.path.join(path, 'sync.json'), "w") as file:
             file.write("{}")
 
 

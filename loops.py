@@ -134,7 +134,7 @@ def loop():
     # Move yeeted levels
     for level in yeet_levels:
         level_path = file_data[level]
-        renamed = rename(os.path.join(path, 'yeeted', level_path))
+        renamed = rename(os.path.join(path, '..', 'yeeted', level_path))
 
         shutil.move(os.path.join(path, level_path), renamed)
 
