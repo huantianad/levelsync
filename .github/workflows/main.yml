@@ -17,14 +17,20 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      # Use PyInstaller to freeze the program
       - name: PyInstaller Windows
         uses: JackMcKew/pyinstaller-action-windows@main
         with:
           path: ./
           requirements: ./requirements.txt
 
+      - uses: papeloto/action-zip@v1
+        with:
+          files: dist/windows/LevelSync.exe config.ini README.md
+          dest: LevelSync.zip
+
       - uses: actions/upload-artifact@v2
         with:
-          name: LevelSync.exe
-          path: dist/windows
+          name: LevelSync.zip
+          path: ./
 
