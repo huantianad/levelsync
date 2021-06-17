@@ -5,13 +5,14 @@ import re
 import shutil
 import typing
 from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
 import requests
 
 import initial
 
 
-def get_site(verified_only=False):
+def get_site(verified_only=False) -> list[str]:
     url = 'https://script.google.com/macros/s/AKfycbzm3I9ENulE7uOmze53cyDuj7Igi7fmGiQ6w045fCRxs_sK3D4/exec'
     r = requests.get(url).json()
 
@@ -21,7 +22,7 @@ def get_site(verified_only=False):
         return [x['download_url'] for x in r]
 
 
-def rename(path: typing.Union[str, bytes, os.PathLike]):
+def rename(path: str) -> str:
     """Given some path, returns a file path that doesn't already exist"""
     if os.path.exists(path):
         index = 2
@@ -45,7 +46,9 @@ def unzip_level(path: str) -> None:
 
     with TemporaryDirectory() as tempdir:
         try:
-            shutil.unpack_archive(path, tempdir, format="zip")
+            with ZipFile(path, 'r') as zip_file:
+                zip_file.extractall(tempdir)
+
             os.remove(path)
             shutil.move(tempdir, path)
 
@@ -73,17 +76,19 @@ def get_url_filename(url: str) -> str:
         name = url.split('/')[-1]
     else:
         # Otherwise, we need to use some weird stuff to get it from the Content-Disposition header
-        r = requests.get(url).headers.get('Content-Disposition')
-        name = re.findall('filename=(.+)', r)[0].split(";")[0].replace('"', "")
+        r = requests.get(url, allow_redirects=True, stream=True)
+
+        h = r.headers.get('Content-Disposition')
+        name = re.findall('filename="(.+)"', h)[0]
 
     # Remove the characters that windows doesn't like in filenames
-    for char in r'<>:"/\|?* ':
+    for char in r'<>:"/\|?*':
         name = name.replace(char, '')
 
     return name
 
 
-def download_level(url: str, path: typing.Union[str, bytes, os.PathLike]):
+def download_level(url: str, path: typing.Union[str, bytes, os.PathLike]) -> str:
     # Get the proper filename of the level, append it to the path to get the full path to the downloaded level.
     filename = get_url_filename(url)
     full_path = os.path.join(path, filename)
