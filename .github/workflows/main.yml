@@ -31,33 +31,14 @@ jobs:
           files: ./dist/windows/LevelSync.exe ./config.ini ./README.md
           dest: ./LevelSync.zip
 
-      # Create a draft release
-      # - id: create_release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: <tofill>
-      #     release_name: <tofill>
-      #     draft: true
-      #     prerelease: false
-
-      # # Upload file to the release
-      # - uses: actions/upload-release-asset@v1.0.1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: ./LevelSync.zip
-      #     asset_name: LevelSync.zip
-      #     asset_content_type: application/zip
+      # Create a draft release with the exe
       - uses: "marvinpinto/action-automatic-releases@v1.2.1"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "<tofill>"
+          title: "<tofill>"
           draft: true
           prerelease: false
-          title: "<tofill>"
           files: |
             ./LevelSync.zip
 
