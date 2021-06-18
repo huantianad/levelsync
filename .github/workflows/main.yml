@@ -10,29 +10,35 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      # Use PyInstaller to freeze the program
-      - name: PyInstaller Windows
-        uses: JackMcKew/pyinstaller-action-windows@main
+      
+      # Make sure we have the right version of python
+      - name: "Setup Python"
+        uses: actions/setup-python@v2
         with:
-          path: ./
-          requirements: ./requirements.txt
-          spec: ./LevelSync.spec
+          python-version: '3.9.x'
+          
+      # Create the exe
+      - name: "Install packages, run PyInstaller"
+        run: |
+          pip install -r requirements.txt
+          pyinstaller LevelSync.spec
 
       # Zip up the exe with the config and readme
-      - uses: papeloto/action-zip@v1
+      - name: "Zip files"
+        uses: papeloto/action-zip@v1
         with:
-          files: ./dist/windows/LevelSync.exe ./config.ini ./README.md
+          files: ./dist/LevelSync.exe ./config.ini ./README.md
           dest: ./LevelSync.zip
 
       # Create a draft release with the exe
-      - uses: "marvinpinto/action-automatic-releases@v1.2.1"
+      - name: "Create release"
+        uses: "marvinpinto/action-automatic-releases@v1.2.1"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "<tofill>"
@@ -43,7 +49,8 @@ jobs:
             ./LevelSync.zip
 
       # Create and upload an artifact for testing purposes
-      - uses: actions/upload-artifact@v2
+      - name: "Upload artifact"
+        uses: actions/upload-artifact@v2
         with:
           name: LevelSync
           path: ./LevelSync.zip
