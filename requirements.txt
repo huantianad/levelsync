@@ -1,8 +1,18 @@
-altgraph==0.17
-certifi==2021.5.30
-chardet==4.0.0
-idna==2.10
+requests==2.25.1
 pyinstaller==4.3
 pyinstaller-hooks-contrib==2021.1
-requests==2.25.1
-urllib3==1.26.5
+pystray==0.17.3
+notify-py==0.3.3
+# altgraph==0.17
+# certifi==2021.5.30
+# chardet==4.0.0
+# idna==2.10
+# jeepney==0.6.0
+# loguru==0.5.3
+# Pillow==8.2.0
+# pycairo==1.20.1
+# PyGObject==3.40.1
+# PySys==1.6.1
+# python-xlib==0.30
+# six==1.16.0
+# urllib3==1.26.5

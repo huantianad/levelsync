@@ -23,6 +23,7 @@ __pycache__/
 
 # Logs
 log.txt
+log_previous.txt
 
 # venv dir
 env/
