@@ -7,7 +7,12 @@ import sys
 def resource_path(relative_path):
     """Get absolute path to resource, relative to .exe, works for dev and for PyInstaller"""
 
-    return os.path.join(sys.path[0], relative_path)
+    if getattr(sys, 'frozen', False):
+        base_path = os.path.split(sys.executable)[0]
+    else:
+        base_path = sys.path[0]
+
+    return os.path.join(base_path, relative_path)
 
 
 def bundled_path(relative_path):

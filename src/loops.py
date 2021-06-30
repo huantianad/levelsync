@@ -129,7 +129,7 @@ def error(message: str) -> None:
     notification = Notify()
     notification.title = "LevelSync Error!!!!"
     notification.message = message
-    notification.icon = initial.bundled_path('res/icon.ico')
+    notification.icon = initial.bundled_path(os.path.join('res', 'icon.ico'))
     notification.send(block=True)
 
 
@@ -147,7 +147,7 @@ def notification(message: str) -> None:
     notification = Notify()
     notification.title = "LevelSync"
     notification.message = message
-    notification.icon = initial.bundled_path('res/icon.ico')
+    notification.icon = initial.bundled_path(os.path.join('res', 'icon.ico'))
     notification.send(block=True)
 
 

@@ -27,7 +27,7 @@ def main() -> None:
         pystray.MenuItem('Quit', exit)
     )
 
-    with Image.open(bundled_path('res/icon.ico')) as im:
+    with Image.open(bundled_path(os.path.join('res', 'icon.ico'))) as im:
         im.load()
         icon.icon = im
 
