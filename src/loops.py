@@ -5,7 +5,7 @@ import re
 import shutil
 import typing
 from tempfile import TemporaryDirectory
-from zipfile import ZipFile, BadZipFile
+from zipfile import BadZipFile, ZipFile
 
 import requests
 from notifypy import Notify
@@ -72,12 +72,20 @@ def unzip_level(path: str) -> None:
         except OSError:  # python cannot physically unzip the file correctly, not really something we can fix.
             error(f"{path} has some broken characters or stuff. It will be broken. Please tell a mod to fix")
 
-        else:  # We unzipped the file correctly, remove the old zipped file and replace it with the unzipped
+        else:
+            # We unzipped the file correctly, remove the old zipped file and replace it with the unzipped
             os.remove(path)
             shutil.move(tempdir, path)
 
+            # Fix CLS version bug
+            with open(os.path.join(path, 'main.rdlevel'), 'r') as file:
+                data = file.read()
+            data = data.replace('"version": 45', '"version": 44', 1)
+            with open(os.path.join(path, 'main.rdlevel'), 'w') as file:
+                file.write(data)
 
-def get_filename(r: requests.Response) -> str:
+
+def get_filename(url: str) -> str:
     """
     Extracts the filename from the Content-Disposition header of a request.
 
@@ -88,8 +96,12 @@ def get_filename(r: requests.Response) -> str:
         str: The filename of the level
     """
 
-    h = r.headers.get('Content-Disposition')
-    name = re.search(r'filename[^;=\n]*=(([\'"]).*?\2|[^;\n]*)', h).groups()[0]
+    if url.endswith('.rdzip'):
+        name = url.rsplit('/', 1)[-1]
+    else:
+        r = requests.get(url, stream=True)
+        h = r.headers.get('Content-Disposition')
+        name = re.search(r'filename[^;=\n]*=(([\'"]).*?\2|[^;\n]*)', h).groups()[0]
 
     # Remove the characters that windows doesn't like in filenames
     for char in r'<>:"/\|?*':
@@ -101,15 +113,15 @@ def get_filename(r: requests.Response) -> str:
 def download_level(url: str, path: typing.Union[str, bytes, os.PathLike]) -> str:
     r = requests.get(url)
 
-    # Get the proper filename of the level, append it to the path to get the full path to the downloaded level.
-    filename = get_filename(r)
-    full_path = os.path.join(path, filename)
-
-    # Ensure unique file name
-    full_path = rename(full_path)
-
     if r.status_code != 200:
         error(f"The level {url} was deleted. Please tell a mod about this.")
+
+    # Get the proper filename of the level, append it to the path to get the full path to the downloaded level.
+    filename = get_filename(url)
+    full_path = os.path.join(path, filename)
+
+    # Ensure unique filename
+    full_path = rename(full_path)
 
     with open(full_path, 'wb') as file:
         file.write(r.content)
@@ -126,6 +138,9 @@ def error(message: str) -> None:
     """
     logging.error(message)
 
+    if enable_notifications is False:
+        return
+
     notification = Notify()
     notification.title = "LevelSync Error!!!!"
     notification.message = message
@@ -141,20 +156,22 @@ def notification(message: str) -> None:
         message (set): Message to send.
     """
 
-    if message is None:
+    if message is None or enable_notifications is False:
         return
 
     notification = Notify()
     notification.title = "LevelSync"
     notification.message = message
-    notification.icon = initial.bundled_path(os.path.join('res', 'icon.ico'))
+    notification.icon = initial.bundled_path(os.path.join('res', 'samuraisword.ico'))
     notification.send(block=True)
 
 
 def loop() -> None:
+    global enable_notifications
     config = initial.read_config()
-    path = config['path']
+    path = config.get('path')
     verified_only = config.getboolean('verified_only')
+    enable_notifications = config.getboolean('enable_notifications')
 
     logging.info("Starting website check.")
     try:
