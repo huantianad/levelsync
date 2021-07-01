@@ -70,7 +70,7 @@ def unzip_level(path: str) -> None:
             # python detects that the file isn't a zip file, so we ignore trying to unzip it
             error(f"{path} isn't an actual level")
 
-        except (OSError, UnicodeDecodeError):
+        except OSError:
             # python cannot physically unzip the file correctly, not really something we can fix.
             error(f"{path} has some broken characters or stuff. It will be broken. Please tell a mod to fix")
 
@@ -80,10 +80,10 @@ def unzip_level(path: str) -> None:
             shutil.move(tempdir, path)
 
             # Fix CLS version bug
-            with open(os.path.join(path, 'main.rdlevel'), 'r') as file:
+            with open(os.path.join(path, 'main.rdlevel'), 'r', encoding='utf-8-sig') as file:
                 data = file.read()
             data = data.replace('"version": 45', '"version": 44', 1)
-            with open(os.path.join(path, 'main.rdlevel'), 'w') as file:
+            with open(os.path.join(path, 'main.rdlevel'), 'w', encoding='utf-8-sig') as file:
                 file.write(data)
 
 
