@@ -81,9 +81,10 @@ def unzip_level(path: str) -> None:
 
             # Fix CLS version bug
             try:
-                with open(os.path.join(path, 'main.rdlevel'), 'r+', encoding='utf-8-sig') as file:
+                with open(os.path.join(path, 'main.rdlevel'), 'r', encoding='utf-8-sig') as file:
                     data = file.read()
-                    data = data.replace('"version": 45', '"version": 44', 1)
+                data = data.replace('"version": 45', '"version": 44', 1)
+                with open(os.path.join(path, 'main.rdlevel'), 'w', encoding='utf-8-sig') as file:
                     file.write(data)
             except UnicodeDecodeError:
                 # python cannot read this file, so give up
