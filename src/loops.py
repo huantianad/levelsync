@@ -66,10 +66,12 @@ def unzip_level(path: str) -> None:
             with ZipFile(path, 'r') as zip_file:
                 zip_file.extractall(tempdir)
 
-        except BadZipFile:  # python detects that the file isn't a zip file, so we ignore trying to unzip it
+        except BadZipFile:
+            # python detects that the file isn't a zip file, so we ignore trying to unzip it
             error(f"{path} isn't an actual level")
 
-        except OSError:  # python cannot physically unzip the file correctly, not really something we can fix.
+        except (OSError, UnicodeDecodeError):
+            # python cannot physically unzip the file correctly, not really something we can fix.
             error(f"{path} has some broken characters or stuff. It will be broken. Please tell a mod to fix")
 
         else:
