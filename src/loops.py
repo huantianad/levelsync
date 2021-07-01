@@ -87,7 +87,7 @@ def unzip_level(path: str) -> None:
                     file.write(data)
             except UnicodeDecodeError:
                 # python cannot read this file, so give up
-                pass
+                error(f"I tried to make sure that {path} would show up in CLS, but I died in the process.")
 
 
 def get_filename(url: str) -> str:
