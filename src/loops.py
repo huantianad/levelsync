@@ -64,6 +64,12 @@ def unzip_level(path: str) -> None:
     with TemporaryDirectory() as tempdir:
         try:
             with ZipFile(path, 'r') as zip_file:
+                if sum(file.file_size for file in zip_file.filelist) > 10**9:
+                    error(f"Level {path} is too large (> 1GB), and it might be a zip bomb. You can unzip this manually,"
+                          " if you do, make sure you have the same file name, with the .rdzip extension. "
+                          "If it is a zipbomb, please contact a mod immediately.")
+                    return
+
                 zip_file.extractall(tempdir)
 
         except BadZipFile:
@@ -114,9 +120,7 @@ def download_level(url: str, path: typing.Union[str, bytes, os.PathLike]) -> str
     # Get the proper filename of the level, append it to the path to get the full path to the downloaded level.
     filename = get_filename(url)
     full_path = os.path.join(path, filename)
-
-    # Ensure unique filename
-    full_path = rename(full_path)
+    full_path = rename(full_path)  # Ensure unique filename
 
     with open(full_path, 'wb') as file:
         file.write(r.content)
