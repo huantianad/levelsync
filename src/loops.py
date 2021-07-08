@@ -66,8 +66,8 @@ def unzip_level(path: str) -> None:
             with ZipFile(path, 'r') as zip_file:
                 if sum(file.file_size for file in zip_file.filelist) > 10**9:
                     error(f"Level {path} is too large (> 1GB), and it might be a zip bomb. You can unzip this manually,"
-                          " if you do, make sure you have the same file name, with the .rdzip extension. "
-                          "If it is a zipbomb, please contact a mod immediately.")
+                          " if you do, make sure you retain the same file name, with the .rdzip extension."
+                          " If it is a zipbomb, please contact a mod immediately.")
                     return
 
                 zip_file.extractall(tempdir)
