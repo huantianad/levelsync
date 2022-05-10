@@ -1,29 +1,3 @@
-# pyinstaller build files
-build/
-dist/
-main.spec
-LevelSyncLoop1.spec
-
-# Nuikta build files
-main.build
-main.onefile-build
-main.dist
-
-# Testing and such files
-levels/
-official/
-personal/
-
-# ide and other files
-.idea/
-.python-version
-__pycache__/
+# IDE settings
 .vscode/
 .directory
-
-# Logs
-log.txt
-log_previous.txt
-
-# venv dir
-env/

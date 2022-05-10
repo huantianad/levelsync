@@ -1,5 +1,5 @@
 # LevelSync
-A program that syncs your RD level folder with the site.
+Automatically download and update your Rhythm Doctor levels!
 
 ## How to Use
 NOTE: I would recommend using this on an EMPTY level folder as the program downloads all levels on first time run.
@@ -11,6 +11,3 @@ NOTE: I would recommend using this on an EMPTY level folder as the program downl
 
 ## Information
 The program once started, will check the site API at a set interval and check for changes. If it detects any new levels, it will automatically download it and put it in the levels folder. If any level is removed, the local verison will be moved to the "yeeted" folder created inside the levels folder.
-
-## aa
-`gobject-introspection`

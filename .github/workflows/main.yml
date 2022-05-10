@@ -1,57 +1,141 @@
-name: PyInstaller Windows Release
+name: Build and Release
 
-# Controls when the action will run.
 on:
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+env:
+  APP_NAME: 'rd_downloader'
+  NIM_VERSION: '1.6.4'
+
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: windows-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  dll:
+    runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-      
-      # Make sure we have the right version of python
-      - name: "Setup Python"
-        uses: actions/setup-python@v2
+      - name: Download DLLs
+        uses: wei/curl@master
         with:
-          python-version: '3.9.x'
-          
-      # Create the exe
-      - name: "Install packages, run PyInstaller"
-        run: |
-          pip install -r requirements.txt
-          pyinstaller LevelSync.spec
+          args: https://nim-lang.org/download/dlls.zip --output dlls.zip
 
-      # Zip up the exe with the config and readme
-      - name: "Zip files"
-        uses: papeloto/action-zip@v1
+      - name: Unzip
+        uses: montudor/action-zip@v1
         with:
-          files: ./dist/LevelSync.exe ./config.ini ./README.md
-          dest: ./LevelSync.zip
+          args: unzip -qq dlls.zip
 
-      # Create a draft release with the exe
-      - name: "Create release"
-        uses: "marvinpinto/action-automatic-releases@v1.2.1"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "<tofill>"
-          title: "<tofill>"
-          draft: true
-          prerelease: false
-          files: |
-            ./LevelSync.zip
-
-      # Create and upload an artifact for testing purposes
-      - name: "Upload artifact"
+      - name: Store DLLs artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: LevelSync
-          path: ./LevelSync.zip
+          name: dlls
+          path: |
+            cacert.pem
+            libcrypto-1_1.dll
+            libcrypto-1_1-x64.dll
+            sqlite3_32.dll
+            sqlite3_64.dll
+            libssl-1_1.dll
+            libssl-1_1-x64.dll
+
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Nim
+        uses: jiro4989/setup-nim-action@v1
+        with:
+          nim-version: ${{ env.NIM_VERSION }}
+
+      - name: Build
+        run: nimble build -d:release -y
+
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: binary-${{ matrix.os }}
+          path: |
+            ${{ env.APP_NAME }}
+            ${{ env.APP_NAME }}.exe
+
+  package-windows:
+    runs-on: ubuntu-latest
+    needs: [build, dll]
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: binary-windows-latest
+
+      - name: Download DLLs artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dlls
+
+      - name: Zip binary + dlls
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r ${{ env.APP_NAME }}-windows.zip .
+
+      - name: Store windows zip artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: package-windows-latest
+          path: ${{ env.APP_NAME }}-windows.zip
+
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Generate changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v1.0.0
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Write changelog to file
+        run: |
+          cat > changelog.txt << "EOF"
+          ${{ steps.changelog.outputs.changelog }}
+          EOF
+
+      - name: Store changelog
+        uses: actions/upload-artifact@v2
+        with:
+          name: changelog
+          path: changelog.txt
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build, changelog, package-windows]
+    steps:
+      - name: Download Windows package artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: package-windows-latest
+
+      - name: Download Linux binary artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: binary-ubuntu-latest
+
+      - name: Download changelog
+        uses: actions/download-artifact@v2
+        with:
+          name: changelog
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: changelog.txt
+          files: |
+            ${{ env.APP_NAME }}
+            ${{ env.APP_NAME }}-windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
