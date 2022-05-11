@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 env:
-  APP_NAME: 'rd_downloader'
+  APP_NAME: 'levelsync'
   NIM_VERSION: '1.6.4'
 
 jobs:
