@@ -1,0 +1,11 @@
+# Path to your rhythm doctor levels folder
+levelsPath:
+  "/path/to/Rhythm Doctor/Levels"
+
+# Time to wait between syncs (in seconds)
+interval:
+  60
+
+# Whether or not to only download peer-reviewed levels
+checkedOnly:
+  false
