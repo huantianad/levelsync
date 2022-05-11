@@ -4,6 +4,8 @@ import chronicles, yaml
 type
   Config = object
     levelsPath*: string
+    yeetedPath*: string
+    logPath*: string
     interval*: int
     checkedOnly*: bool
 
@@ -11,9 +13,6 @@ type
 
 proc raiseConfigError(msg: string, parent: ref Exception = nil) {.noreturn.} =
   raise newException(ConfigError, msg, parent)
-
-proc yeetedPath*(config: Config): string =
-  config.levelsPath / ".." / "Yeeted"
 
 proc localLevelsDbPath*(config: Config): string =
   config.levelsPath / "levelInfo.db"

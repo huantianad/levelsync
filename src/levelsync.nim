@@ -16,6 +16,10 @@ proc mainLoop() =
     info "Creating levelInfo database."
     createDb()
 
+  if not lconfig.yeetedPath.dirExists:
+    info "Creating yeeted directory", path = lconfig.yeetedPath
+    createDir(lconfig.yeetedPath)
+
   info "Updating orchard database."
   updateOrchardDb()
 
@@ -42,8 +46,8 @@ proc mainLoop() =
   # Log based on result of ^
   if toRemove.len + toDownload.len > 0:
     info "Found levels to download/remove.",
-      toRemove = toRemove,
-      toDownload = toDownload
+      toRemoveLen = toRemove.len,
+      toDownloadLen = toDownload.len
   else:
     info "Didn't find any levels to download/remove."
 
@@ -51,7 +55,7 @@ proc mainLoop() =
   for (id, filename) in toRemove:
     try:
       if not dirExists(lconfig.levelsPath / filename):
-        echo fmt"level named {filename} no longer there, can't remove"
+        warn "level no longer there, can't remove", filename = filename
       else:
         moveDir(lconfig.levelsPath / filename, lconfig.yeetedPath / filename)
 
@@ -59,6 +63,8 @@ proc mainLoop() =
         DELETE FROM localLevels
         WHERE orchardId = ?
       """, id)
+
+      info "Removed level", filename = filename
 
     except CatchableError as e:
       error "Failed to remove level", filename = filename, emsg = e.msg
@@ -74,6 +80,8 @@ proc mainLoop() =
         VALUES (?, ?)
       """, id, filename)
 
+      info "Downloaded level", url = url, filename = filename
+
     except CatchableError as e:
       error "Failed to download level", url = url, emsg = e.msg
 
@@ -81,7 +89,15 @@ proc mainLoop() =
 
   info "Done."
 
+proc setupChronicles() =
+  if lconfig.logPath.fileExists:
+    moveFile(lconfig.logPath, lconfig.logPath & ".old")
+
+  let success = defaultChroniclesStream.output.open(lconfig.logPath, fmWrite)
+  assert success
+
 when isMainModule:
+  setupChronicles()
   while true:
     try:
       mainLoop()

@@ -2,6 +2,14 @@
 levelsPath:
   "/path/to/Rhythm Doctor/Levels"
 
+# Location to where removed levels are moved
+yeetedPath:
+  "/path/to/Rhythm Doctor/Yeeted"
+
+# Where log files are stored. Can be relative to binary
+logPath:
+  "./levelsync.log"
+
 # Time to wait between syncs (in seconds)
 interval:
   60

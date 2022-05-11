@@ -5,3 +5,6 @@
 config.yaml
 levelsync
 test/
+
+levelsync.log
+levelsync.log.old

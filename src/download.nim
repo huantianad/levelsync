@@ -10,7 +10,16 @@ import std/[
   tempfiles,
   uri,
 ]
-import zippy/ziparchives
+import chronicles, zippy/ziparchives
+
+type HttpStatusError = object of CatchableError
+
+proc raiseForStatus(resp: Response | AsyncResponse) =
+  if resp.code.is4xx or resp.code.is5xx:
+    raise newException(
+      HttpStatusError,
+      "Response failed with status code" & $resp.code
+    )
 
 proc cleanFilename(filename: string): string =
   ## Removes all illegal characters from a filename.
@@ -41,7 +50,7 @@ proc getFilename(url: Uri, resp: Response): string =
   if rawFilename.isSome:
     rawFilename.get().cleanFilename()
   else:
-    echo "Failed to get url filename: " & $url
+    error "Failed to get url filename, returning UNKNOWN.rdzip", url = url
     "UNKNOWN.rdzip"
 
 proc removeExtension(path: string): string =
@@ -71,6 +80,7 @@ proc downloadLevel*(client: HttpClient, url: Uri, folder: string): string =
   ## from the url, and ensures it is unique. Returns the filename of the
   ## downloaded level on disk.
   let resp = client.get(url)
+  resp.raiseForStatus()
 
   let (cfile, tempFile) = createTempFile("levelsync_", ".rdzip.temp")
   cfile.close()
