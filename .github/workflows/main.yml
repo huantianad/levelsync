@@ -36,7 +36,7 @@ jobs:
             libssl-1_1.dll
             libssl-1_1-x64.dll
 
-  configfile:
+  config:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
