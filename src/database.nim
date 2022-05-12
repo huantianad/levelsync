@@ -47,6 +47,7 @@ proc setupDbConnection*(): DbConn =
           level
         LEFT JOIN status ON status.id = level.id
         WHERE COALESCE(status.approval, 0) > 0
+        AND (source = 'yeoldesheet' OR source = 'rdl')
     """
     else: sql"""
       CREATE TEMP VIEW orchardLevels AS
@@ -56,6 +57,6 @@ proc setupDbConnection*(): DbConn =
         FROM
           level
         LEFT JOIN status ON status.id = level.id
+        WHERE source = 'yeoldesheet' OR source = 'rdl'
     """
   result.exec(viewQuery)
-

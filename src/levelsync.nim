@@ -3,7 +3,6 @@ import std/[
   httpclient,
   os,
   sequtils,
-  strformat,
   uri,
 ]
 import configs, database, download
@@ -55,7 +54,7 @@ proc mainLoop() =
   for (id, filename) in toRemove:
     try:
       if not dirExists(lconfig.levelsPath / filename):
-        warn "level no longer there, can't remove", filename = filename
+        warn "folder no longer there, can't remove", filename = filename
       else:
         moveDir(lconfig.levelsPath / filename, lconfig.yeetedPath / filename)
 
@@ -71,6 +70,8 @@ proc mainLoop() =
 
   # Download levels
   var client = newHttpClient()
+  defer: client.close()
+
   for (id, url) in toDownload:
     try:
       let filename = client.downloadLevel(url, lconfig.levelsPath)
@@ -85,15 +86,22 @@ proc mainLoop() =
     except CatchableError as e:
       error "Failed to download level", url = url, emsg = e.msg
 
-  client.close()
 
   info "Done."
 
 proc setupChronicles() =
-  if lconfig.logPath.fileExists:
-    moveFile(lconfig.logPath, lconfig.logPath & ".old")
+  # Make sure relative paths are relative to binary
+  let path =
+    if lconfig.logPath.isAbsolute:
+      lconfig.logPath
+    else:
+      getAppDir() / lconfig.logPath
 
-  let success = defaultChroniclesStream.output.open(lconfig.logPath, fmWrite)
+  # Move previous config file to version with .old extension
+  if path.fileExists:
+    moveFile(path, path & ".old")
+
+  let success = defaultChroniclesStream.output.open(path, fmWrite)
   assert success
 
 when isMainModule:

@@ -15,6 +15,7 @@ import chronicles, zippy/ziparchives
 type HttpStatusError = object of CatchableError
 
 proc raiseForStatus(resp: Response | AsyncResponse) =
+  ## Raises HttpStatusError if the response was a 4xx or 5xx status code.
   if resp.code.is4xx or resp.code.is5xx:
     raise newException(
       HttpStatusError,
@@ -58,7 +59,7 @@ proc removeExtension(path: string): string =
   head / name
 
 proc ensureDirname(path: string): string =
-  ## Creates a unique filename for a given path by adding (#) to the filename.
+  ## Creates a unique dir name for a given path by adding (#) to the dir name.
   if not path.dirExists:
     return path
 

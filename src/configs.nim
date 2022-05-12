@@ -19,7 +19,7 @@ proc localLevelsDbPath*(config: Config): string =
 
 proc loadConfigImpl(): Config =
   # Read and parse config
-  var file = newFileStream("config.yaml")
+  var file = newFileStream(getAppDir() / "config.yaml")
   try:
     load(file, result)
   except CatchableError as e:
