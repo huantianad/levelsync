@@ -66,7 +66,7 @@ jobs:
           nim-version: ${{ env.NIM_VERSION }}
 
       - name: Build
-        run: nimble build -d:release -y
+        run: nimble build -d:release --app:gui -y
 
       - name: Store artifacts
         uses: actions/upload-artifact@v2
