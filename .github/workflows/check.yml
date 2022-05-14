@@ -7,6 +7,7 @@ on:
   pull_request:
 
 env:
+  APP_NAME: "levelsync"
   NIM_VERSION: '1.6.4'
 
 jobs:
