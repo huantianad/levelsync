@@ -24,10 +24,20 @@ proc raiseForStatus(resp: Response | AsyncResponse) =
 
 proc cleanFilename(filename: string): string =
   ## Removes all illegal characters from a filename.
+  ## See https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+  const winBadChars = {'<', '>', ':', '"', '/', '\\', '|', '?', '*'}
+
   result = newStringOfCap(filename.len)
   for character in filename:
-    if character notin {'<', '>', ':', '"', '/', '\\', '|', '?', '*'}:
-      result.add(character)
+    if character in winBadChars: continue
+    if ord(character) < 31: continue
+    # Don't allow consecutive periods
+    if result.len > 0 and result[^1] == '.' and character == '.': continue
+
+    result.add(character)
+
+  # Remove all periods and whitespace at end of filename
+  result = result.strip(leading = false, chars = Whitespace + {'.'})
 
 proc getFilenameImpl(url: Uri, resp: Response): Option[string] =
   ## Extracts filename from a url/response headers.
