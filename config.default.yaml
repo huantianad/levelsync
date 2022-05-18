@@ -12,7 +12,7 @@ logPath:
 
 # Time to wait between syncs (in seconds)
 interval:
-  60
+  1800
 
 # Whether or not to only download peer-reviewed levels
 checkedOnly:
