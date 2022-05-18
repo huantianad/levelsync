@@ -12,7 +12,7 @@ import std/[
 ]
 import chronicles, zippy/ziparchives
 
-type HttpStatusError = object of CatchableError
+type HttpStatusError* = object of CatchableError
 
 proc raiseForStatus(resp: Response | AsyncResponse) =
   ## Raises HttpStatusError if the response was a 4xx or 5xx status code.
@@ -95,6 +95,7 @@ proc downloadLevel*(client: HttpClient, url: Uri, folder: string): string =
 
   let (cfile, tempFile) = createTempFile("levelsync_", ".rdzip.temp")
   cfile.close()
+  defer: removeFile(tempFile)
 
   let file = openFileStream(tempFile, fmWrite)
   try:
@@ -104,7 +105,5 @@ proc downloadLevel*(client: HttpClient, url: Uri, folder: string): string =
 
   let filePath = ensureDirname(folder / getFilename(url, resp).removeExtension)
   extractAll(tempFile, filePath)
-
-  removeFile(tempFile)
 
   filePath.extractFilename
