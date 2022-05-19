@@ -10,7 +10,7 @@ import std/[
   tempfiles,
   uri,
 ]
-import chronicles, zippy/ziparchives
+import pkg/[chronicles, zippy/ziparchives]
 
 type HttpStatusError* = object of CatchableError
 
@@ -40,8 +40,6 @@ proc cleanFilename(filename: string): string =
   result = result.strip(leading = false, chars = Whitespace + {'.'})
 
 proc getFilenameImpl(url: Uri, resp: Response): Option[string] =
-  ## Extracts filename from a url/response headers.
-  ## Either uses last element in url, or Content-Disposition header.
   # Check if filename is already in URL
   let (_, name, ext) = url.path.splitFile
   if ext == ".rdzip" or ext == ".zip":
@@ -56,7 +54,10 @@ proc getFilenameImpl(url: Uri, resp: Response): Option[string] =
     if "filename" in cdData:
       return some(cdData["filename"])
 
-proc getFilename(url: Uri, resp: Response): string =
+proc getFilename(url: Uri, resp: Response): string=
+  ## Extracts filename from a url/response headers.
+  ## Either uses last element in url, or Content-Disposition header.
+  ## Does not raise on failure, instead logs and returns UNKNOWN.rdzip.
   let rawFilename = getFilenameImpl(url, resp)
   if rawFilename.isSome:
     rawFilename.get().cleanFilename()

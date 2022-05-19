@@ -1,5 +1,5 @@
 import std/[os, streams, strformat]
-import chronicles, yaml
+import pkg/[chronicles, yaml]
 
 type
   Config = object
@@ -11,7 +11,7 @@ type
 
   ConfigError = object of CatchableError
 
-proc raiseConfigError(msg: string, parent: ref Exception = nil) {.noreturn.} =
+template raiseConfigError(msg: string, parent: ref Exception = nil) =
   raise newException(ConfigError, msg, parent)
 
 proc localLevelsDbPath*(config: Config): string =
