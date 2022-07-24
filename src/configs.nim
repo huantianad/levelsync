@@ -19,6 +19,14 @@ proc localLevelsDbPath*(config: Config): string =
 
 proc loadConfigImpl(): Config =
   # Read and parse config
+  let configPath = getAppDir() / "config.yaml"
+
+  if (not configPath.fileExists):
+    raiseConfigError(
+      "Config file not found. Make sure there is a file named config.yaml" &
+      "next to the executable."
+    )
+
   var file = newFileStream(getAppDir() / "config.yaml")
   try:
     load(file, result)

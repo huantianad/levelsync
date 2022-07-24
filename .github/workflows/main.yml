@@ -7,7 +7,7 @@ on:
 
 env:
   APP_NAME: 'levelsync'
-  NIM_VERSION: '1.6.4'
+  NIM_VERSION: '1.6.6'
 
 jobs:
   dll:
@@ -23,7 +23,7 @@ jobs:
         with:
           args: unzip -qq dlls.zip
 
-      - name: Store DLLs artifacts
+      - name: Upload DLLs artifact
         uses: actions/upload-artifact@v2
         with:
           name: dlls
@@ -45,7 +45,7 @@ jobs:
       - name: Rename config file
         run: mv config.default.yaml config.yaml
 
-      - name: Store windows zip artifact
+      - name: Upload config file artifact
         uses: actions/upload-artifact@v2
         with:
           name: config
@@ -68,7 +68,7 @@ jobs:
       - name: Build
         run: nimble build -d:release --app:gui -y
 
-      - name: Store artifacts
+      - name: Upload binary artifacts
         uses: actions/upload-artifact@v2
         with:
           name: binary-${{ matrix.os }}
@@ -95,16 +95,41 @@ jobs:
         with:
           name: config
 
-      - name: Zip binary + dlls
+      - name: Zip binary + dlls + config
         uses: montudor/action-zip@v1
         with:
           args: zip -qq -r ${{ env.APP_NAME }}-windows.zip .
 
-      - name: Store windows zip artifact
+      - name: Upload Windows zip artifact
         uses: actions/upload-artifact@v2
         with:
           name: package-windows-latest
           path: ${{ env.APP_NAME }}-windows.zip
+
+  package-linux:
+    runs-on: ubuntu-latest
+    needs: [build, config]
+    steps:
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: binary-linux-latest
+
+      - name: Download config artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: config
+
+      - name: Zip binary + config
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r ${{ env.APP_NAME }}-linux.zip .
+
+      - name: Upload Linux zip artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: package-linux-latest
+          path: ${{ env.APP_NAME }}-linux.zip
 
   changelog:
     runs-on: ubuntu-latest
@@ -114,9 +139,9 @@ jobs:
 
       - name: Generate changelog
         id: changelog
-        uses: metcalfc/changelog-generator@v1.0.0
+        uses: metcalfc/changelog-generator@v3.0.0
         with:
-          myToken: ${{ secrets.GITHUB_TOKEN }}
+          mytoken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Write changelog to file
         run: |
@@ -124,7 +149,7 @@ jobs:
           ${{ steps.changelog.outputs.changelog }}
           EOF
 
-      - name: Store changelog
+      - name: Upload changelog artifact
         uses: actions/upload-artifact@v2
         with:
           name: changelog
@@ -132,17 +157,17 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [build, changelog, package-windows]
+    needs: [changelog, package-windows, package-linux]
     steps:
-      - name: Download Windows package artifact
+      - name: Download Windows package
         uses: actions/download-artifact@v2
         with:
           name: package-windows-latest
 
-      - name: Download Linux binary artifact
+      - name: Download Linux package
         uses: actions/download-artifact@v2
         with:
-          name: binary-ubuntu-latest
+          name: package-linux-latest
 
       - name: Download changelog
         uses: actions/download-artifact@v2
@@ -154,8 +179,7 @@ jobs:
         with:
           body_path: changelog.txt
           files: |
-            ${{ env.APP_NAME }}
+            ${{ env.APP_NAME }}-linux.zip
             ${{ env.APP_NAME }}-windows.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

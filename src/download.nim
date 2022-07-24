@@ -19,7 +19,7 @@ proc raiseForStatus(resp: Response | AsyncResponse) =
   if resp.code.is4xx or resp.code.is5xx:
     raise newException(
       HttpStatusError,
-      "Response failed with status code" & $resp.code
+      "Response failed with status code " & $resp.code
     )
 
 proc cleanFilename(filename: string): string =
