@@ -113,7 +113,7 @@ jobs:
       - name: Download Linux artifact
         uses: actions/download-artifact@v2
         with:
-          name: binary-linux-latest
+          name: binary-ubuntu-latest
 
       - name: Download config artifact
         uses: actions/download-artifact@v2
