@@ -8,3 +8,5 @@ test/
 
 levelsync.log
 levelsync.log.old
+
+.direnv
