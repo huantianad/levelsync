@@ -7,7 +7,7 @@ on:
 
 env:
   APP_NAME: 'levelsync'
-  NIM_VERSION: '1.6.6'
+  NIM_VERSION: '1.6.10'
 
 jobs:
   dll:
