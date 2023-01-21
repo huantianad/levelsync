@@ -1,6 +1,6 @@
 # Package
 
-version       = "2.0.8"
+version       = "2.0.9"
 author        = "huantian"
 description   = "Automatically download and update your Rhythm Doctor levels!"
 license       = "GPL-3.0-or-later"
