@@ -107,4 +107,10 @@ proc downloadLevel*(client: HttpClient, url: Uri, folder: string): string =
   let filePath = ensureDirname(folder / getFilename(url, resp).removeExtension)
   extractAll(tempFile, filePath)
 
+  # Ensure all extracted file have proper file permissions.
+  when defined(posix):
+    for kind, path in walkDir(filePath):
+      if kind == pcFile:
+        setFilePermissions(path, {fpUserWrite, fpUserRead, fpGroupRead, fpOthersRead})
+
   filePath.extractFilename
