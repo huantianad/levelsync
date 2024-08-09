@@ -42,7 +42,7 @@ proc setupDbConnection*(): DbConn =
       CREATE TEMP VIEW orchardLevels AS
         SELECT
           level.id,
-          url
+          url2
         FROM
           level
         LEFT JOIN status ON status.id = level.id
@@ -53,7 +53,7 @@ proc setupDbConnection*(): DbConn =
       CREATE TEMP VIEW orchardLevels AS
         SELECT
           level.id,
-          url
+          url2
         FROM
           level
         LEFT JOIN status ON status.id = level.id

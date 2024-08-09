@@ -78,7 +78,7 @@ proc mainLoop() =
 
   let toDownload = db.getAllRows(sql"""
     SELECT * FROM (
-      SELECT id, url FROM orchardLevels
+      SELECT id, url2 FROM orchardLevels
       WHERE id NOT IN (SELECT orchardId FROM localLevels)
     )
   """).mapIt((id: it[0], url: it[1].parseUri))
