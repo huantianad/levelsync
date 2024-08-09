@@ -1,11 +1,10 @@
 import std/[
-  db_sqlite,
   httpclient,
   os,
   sequtils,
   uri,
 ]
-import pkg/chronicles
+import pkg/[chronicles, db_connector/db_sqlite]
 import configs, database, download
 
 proc removeLevels(db: DbConn, toRemove: seq[(string, string)]) {.raises: [].} =

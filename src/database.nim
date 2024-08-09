@@ -1,4 +1,5 @@
-import std/[db_sqlite, os, httpclient]
+import std/[os, httpclient]
+import db_connector/db_sqlite
 import configs
 
 proc createDb*() =

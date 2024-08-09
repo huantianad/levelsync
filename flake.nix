@@ -1,30 +1,22 @@
 {
-  description = "test";
+  description = "levelsync";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs = {
     self,
-    flake-utils,
     nixpkgs,
-  }:
-    flake-utils.lib.eachDefaultSystem (
-      system: let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [];
-        };
-      in {
-        devShell = pkgs.mkShell {
-          buildInputs = [
-            pkgs.nim2
-            pkgs.nimble
-            pkgs.sqlite
-          ];
-        };
-      }
-    );
+  }: let
+    pkgs = nixpkgs.legacyPackages."x86_64-linux";
+  in {
+    devShell."x86_64-linux" = pkgs.mkShell {
+      buildInputs = [
+        pkgs.nim2
+        pkgs.nimble
+        pkgs.sqlite
+      ];
+    };
+  };
 }
