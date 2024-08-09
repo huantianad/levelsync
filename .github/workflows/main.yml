@@ -24,7 +24,7 @@ jobs:
           args: unzip -qq dlls.zip
 
       - name: Upload DLLs artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: dlls
           path: |
@@ -40,13 +40,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Rename config file
         run: mv config.default.yaml config.yaml
 
       - name: Upload config file artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: config
           path: config.yaml
@@ -58,7 +58,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Nim
         uses: jiro4989/setup-nim-action@v2
@@ -69,7 +69,7 @@ jobs:
         run: nimble build -d:release --app:gui -y
 
       - name: Upload binary artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: binary-${{ matrix.os }}
           path: |
@@ -81,17 +81,17 @@ jobs:
     needs: [build, dll, config]
     steps:
       - name: Download Windows artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: binary-windows-latest
 
       - name: Download DLLs artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: dlls
 
       - name: Download config artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: config
 
@@ -101,7 +101,7 @@ jobs:
           args: zip -qq -r ${{ env.APP_NAME }}-windows.zip .
 
       - name: Upload Windows zip artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: package-windows-latest
           path: ${{ env.APP_NAME }}-windows.zip
@@ -111,12 +111,12 @@ jobs:
     needs: [build, config]
     steps:
       - name: Download Linux artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: binary-ubuntu-latest
 
       - name: Download config artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: config
 
@@ -126,7 +126,7 @@ jobs:
           args: zip -qq -r ${{ env.APP_NAME }}-linux.zip .
 
       - name: Upload Linux zip artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: package-linux-latest
           path: ${{ env.APP_NAME }}-linux.zip
@@ -135,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Generate changelog
         id: changelog
@@ -150,7 +150,7 @@ jobs:
           EOF
 
       - name: Upload changelog artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: changelog
           path: changelog.txt
@@ -160,17 +160,17 @@ jobs:
     needs: [changelog, package-windows, package-linux]
     steps:
       - name: Download Windows package
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: package-windows-latest
 
       - name: Download Linux package
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: package-linux-latest
 
       - name: Download changelog
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: changelog
 
