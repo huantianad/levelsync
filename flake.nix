@@ -2,56 +2,27 @@
   description = "test";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-
-    nimble.url = "github:nix-community/flake-nimble";
-    nimble.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, flake-utils, nixpkgs, nimble }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        someOverlay = self: super: {
-          nimPackages = super.nimPackages.overrideScope' (nself: nsuper: {
-            zippy = nsuper.zippy.overrideAttrs (attrs: {
-              # nativeBuildInputs = [ super.unzip ];
-              doCheck = false;
-            });
-            testutils = nsuper.testutils.overrideAttrs (attrs: {
-              doCheck = false;
-            });
-            stew = nsuper.stew.overrideAttrs (attrs: {
-              doCheck = false;
-            });
-            chronos = nsuper.chronos.overrideAttrs (attrs: {
-              doCheck = false;
-            });
-            faststreams = nsuper.faststreams.overrideAttrs (attrs: {
-              doCheck = false;
-            });
-            json_serialization  = nsuper.json_serialization.overrideAttrs (attrs: {
-              doCheck = false;
-            });
-            chronicles  = nsuper.chronicles.overrideAttrs (attrs: {
-              doCheck = false;
-            });
-          });
-        };
-
+  outputs = {
+    self,
+    flake-utils,
+    nixpkgs,
+  }:
+    flake-utils.lib.eachDefaultSystem (
+      system: let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ nimble.overlay someOverlay ];
+          overlays = [];
         };
-      in
-      rec {
+      in {
         devShell = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            nim
-            nimPackages.yaml
-            nimPackages.zippy
-            nimPackages.chronicles
-            sqlite
+          buildInputs = [
+            pkgs.nim2
+            pkgs.nimble
+            pkgs.sqlite
           ];
         };
       }

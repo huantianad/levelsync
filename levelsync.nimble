@@ -10,7 +10,7 @@ bin           = @["levelsync"]
 
 # Dependencies
 
-requires "nim >= 1.6.4"
-requires "yaml >= 0.16.0"
-requires "zippy >= 0.9.8"
-requires "chronicles >= 0.10.2"
+requires "nim >= 2.0.8"
+requires "yaml >= 2.1.1"
+requires "zippy >= 0.10.15"
+requires "chronicles >= 0.10.3"
