@@ -8,7 +8,7 @@ on:
 
 env:
   APP_NAME: "levelsync"
-  NIM_VERSION: '2.0.8'
+  NIM_VERSION: '2.0.14'
 
 jobs:
   build:
