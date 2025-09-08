@@ -19,8 +19,8 @@ proc updateOrchardDb*() =
   let client = newHttpClient()
   defer: client.close()
 
-  const orchardUrl = "https://api.rhythm.cafe/datasette/orchard.db"
-  const statusUrl = "https://api.rhythm.cafe/datasette/status.db"
+  const orchardUrl = "https://api2.rhythm.cafe/datasette/orchard.db"
+  const statusUrl = "https://api2.rhythm.cafe/datasette/status.db"
   client.downloadFile(orchardUrl, lconfig.levelsPath / "orchard.db")
   client.downloadFile(statusUrl, lconfig.levelsPath / "status.db")
 
