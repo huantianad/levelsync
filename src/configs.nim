@@ -46,7 +46,7 @@ proc loadConfig(): Config =
   try:
     loadConfigImpl()
   except CatchableError as e:
-    error fmt"Failed to load config", msg = e.msg
+    error fmt"Failed to load config", errorMsg = e.msg
     quit(1)
 
 let lconfig* = loadConfig()

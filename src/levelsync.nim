@@ -27,7 +27,7 @@ proc removeLevels(db: DbConn, toRemove: seq[(string, string)]) {.raises: [].} =
 
     except CatchableError as e:
       error "Failed to remove level",
-        filename = filename, name = e.name, msg = e.msg
+        filename = filename, name = $e.name, errorMsg = e.msg
 
 proc downloadLevels(db: DbConn, toDownload: seq[(string, Uri)]) =
   var client = newHttpClient()
@@ -46,7 +46,7 @@ proc downloadLevels(db: DbConn, toDownload: seq[(string, Uri)]) =
 
     except CatchableError as e:
       error "Failed to download level",
-        url = url, name = e.name, msg = e.msg
+        url = url, name = $e.name, errorMsg = e.msg
 
 proc mainLoop() =
   info "Starting loop."
@@ -117,7 +117,7 @@ proc main() =
     try:
       mainLoop()
     except CatchableError as e:
-      error "Unhandled exception", name = e.name, msg = e.msg
+      error "Unhandled exception", name = $e.name, errorMsg = e.msg
 
     sleep(lconfig.interval * 1000)
 
