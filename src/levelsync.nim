@@ -108,7 +108,7 @@ proc setupChronicles() =
   if path.fileExists:
     moveFile(path, path & ".old")
 
-  let success = defaultChroniclesStream.output.open(path, fmWrite)
+  let success = defaultChroniclesStream.outputs[1].open(path, fmWrite)
   assert success
 
 proc main() =
