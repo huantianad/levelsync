@@ -41,12 +41,22 @@ proc cleanFilename(filename: string): string =
 
 proc getFilenameImpl(url: Uri, resp: Response): Option[string] =
   # Extract filename from Content-Disposition header
-  const prefix = "attachment;"
+  const attachementPrefix = "attachment;"
+  const utf8Prefix = "UTF-8'"
+  
   let cd = resp.headers.getOrDefault("Content-Disposition")
-  info "content-dispo", cd = cd
 
-  if cd.startsWith(prefix):
-    let cdData = cd[prefix.len..^1].parseCookies()
+  if cd.startsWith(attachementPrefix):
+    let cdData = cd[attachementPrefix.len..^1].parseCookies()
+
+    if "filename*" in cdData:
+      var filename = cdData["filename*"]
+      if filename.startsWith(utf8Prefix):
+        filename.removePrefix(utf8Prefix)
+        let endOfLangTag = filename.find('\'')
+        if endOfLangTag != -1:
+          return some(filename[endOfLangTag+1..^1].decodeUrl(false))
+
     if "filename" in cdData:
       return some(cdData["filename"])
 

@@ -16,6 +16,7 @@
         pkgs.nim
         pkgs.nimble
         pkgs.sqlite
+        pkgs.openssl
       ];
     };
   };
