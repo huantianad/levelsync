@@ -40,12 +40,7 @@ proc cleanFilename(filename: string): string =
   result = result.strip(leading = false, chars = Whitespace + {'.'})
 
 proc getFilenameImpl(url: Uri, resp: Response): Option[string] =
-  # Check if filename is already in URL
-  let (_, name, ext) = url.path.splitFile
-  if ext == ".rdzip" or ext == ".zip":
-    return some(name & ext)
-
-  # Otherwise extract from Content-Disposition header
+  # Extract filename from Content-Disposition header
   const prefix = "attachment;"
   let cd = resp.headers.getOrDefault("Content-Disposition")
 
@@ -53,6 +48,11 @@ proc getFilenameImpl(url: Uri, resp: Response): Option[string] =
     let cdData = cd[prefix.len..^1].parseCookies()
     if "filename" in cdData:
       return some(cdData["filename"])
+
+  # Check if filename is already in URL, use that instead.
+  let (_, name, ext) = url.path.splitFile
+  if ext == ".rdzip" or ext == ".zip":
+    return some(name & ext)
 
 proc getFilename(url: Uri, resp: Response): string=
   ## Extracts filename from a url/response headers.
