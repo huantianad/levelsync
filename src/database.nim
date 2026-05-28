@@ -42,8 +42,7 @@ proc setupDbConnection*(): DbConn =
           id
         FROM
           rdlevels
-        WHERE (source = 'yeoldesheet' OR source = 'rdl' OR source = 'prescriptions')
-          AND approval > 0
+        WHERE approval > 0
     """
     else: sql"""
       CREATE TEMP VIEW orchardLevels AS
@@ -51,6 +50,5 @@ proc setupDbConnection*(): DbConn =
           id
         FROM
           rdlevels
-        WHERE source = 'yeoldesheet' OR source = 'rdl' OR source = 'prescriptions'
     """
   result.exec(viewQuery)
