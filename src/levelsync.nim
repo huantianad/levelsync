@@ -29,12 +29,14 @@ proc removeLevels(db: DbConn, toRemove: seq[(string, string)]) {.raises: [].} =
       error "Failed to remove level",
         filename = filename, name = $e.name, errorMsg = e.msg
 
-proc downloadLevels(db: DbConn, toDownload: seq[(string, Uri)]) =
+proc downloadLevels(db: DbConn, toDownload: seq[string]) =
   var client = newHttpClient()
   defer: client.close()
 
-  for (id, url) in toDownload:
+  for id in toDownload:
     try:
+      const downloadBaseUrl = parseUri("https://rhythm.cafe/levels")
+      let url = downloadBaseUrl / id / "download"
       let filename = client.downloadLevel(url, lconfig.levelsPath)
 
       db.exec(sql"""
@@ -46,7 +48,7 @@ proc downloadLevels(db: DbConn, toDownload: seq[(string, Uri)]) =
 
     except CatchableError as e:
       error "Failed to download level",
-        url = url, name = $e.name, errorMsg = e.msg
+        id = id, name = $e.name, errorMsg = e.msg
 
 proc mainLoop() =
   info "Starting loop."
@@ -69,18 +71,14 @@ proc mainLoop() =
   # Compare orchard and local databases to find levels to download/remove
   info "Searching for levels to download/remove."
   let toRemove = db.getAllRows(sql"""
-    SELECT * FROM (
-      SELECT orchardId, filename FROM localLevels
-      WHERE orchardId NOT IN (SELECT id FROM orchardLevels)
-    )
+    SELECT orchardId, filename FROM localLevels
+    WHERE orchardId NOT IN (SELECT id FROM orchardLevels)
   """).mapIt((id: it[0], filename: it[1]))
 
   let toDownload = db.getAllRows(sql"""
-    SELECT * FROM (
-      SELECT id, url2 FROM orchardLevels
-      WHERE id NOT IN (SELECT orchardId FROM localLevels)
-    )
-  """).mapIt((id: it[0], url: it[1].parseUri))
+    SELECT id FROM orchardLevels
+    WHERE id NOT IN (SELECT orchardId FROM localLevels)
+  """).mapIt(it[0])
 
   # Log based on result of ^
   if toRemove.len + toDownload.len > 0:

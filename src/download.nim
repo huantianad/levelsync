@@ -40,19 +40,30 @@ proc cleanFilename(filename: string): string =
   result = result.strip(leading = false, chars = Whitespace + {'.'})
 
 proc getFilenameImpl(url: Uri, resp: Response): Option[string] =
-  # Check if filename is already in URL
+  # Extract filename from Content-Disposition header
+  const attachementPrefix = "attachment;"
+  const utf8Prefix = "UTF-8'"
+  
+  let cd = resp.headers.getOrDefault("Content-Disposition")
+
+  if cd.startsWith(attachementPrefix):
+    let cdData = cd[attachementPrefix.len..^1].parseCookies()
+
+    if "filename*" in cdData:
+      var filename = cdData["filename*"]
+      if filename.startsWith(utf8Prefix):
+        filename.removePrefix(utf8Prefix)
+        let endOfLangTag = filename.find('\'')
+        if endOfLangTag != -1:
+          return some(filename[endOfLangTag+1..^1].decodeUrl(false))
+
+    if "filename" in cdData:
+      return some(cdData["filename"])
+
+  # Check if filename is already in URL, use that instead.
   let (_, name, ext) = url.path.splitFile
   if ext == ".rdzip" or ext == ".zip":
     return some(name & ext)
-
-  # Otherwise extract from Content-Disposition header
-  const prefix = "attachment;"
-  let cd = resp.headers.getOrDefault("Content-Disposition")
-
-  if cd.startsWith(prefix):
-    let cdData = cd[prefix.len..^1].parseCookies()
-    if "filename" in cdData:
-      return some(cdData["filename"])
 
 proc getFilename(url: Uri, resp: Response): string=
   ## Extracts filename from a url/response headers.
@@ -104,7 +115,8 @@ proc downloadLevel*(client: HttpClient, url: Uri, folder: string): string =
   finally:
     file.close()
 
-  let filePath = ensureDirname(folder / getFilename(url, resp).removeExtension)
+  let filename = getFilename(url, resp)
+  let filePath = ensureDirname(folder / filename.removeExtension)
   extractAll(tempFile, filePath)
 
   # Ensure all extracted file have proper file permissions.

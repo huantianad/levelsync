@@ -2,6 +2,8 @@ import std/[os, httpclient]
 import db_connector/db_sqlite
 import configs
 
+const orchardDbName = "orchard.db"
+
 proc createDb*() =
   ## Creates localLevels db
   let db = open(lconfig.localLevelsDbPath, "", "", "")
@@ -19,20 +21,15 @@ proc updateOrchardDb*() =
   let client = newHttpClient()
   defer: client.close()
 
-  const orchardUrl = "https://api2.rhythm.cafe/datasette/orchard.db"
-  const statusUrl = "https://api2.rhythm.cafe/datasette/status.db"
-  client.downloadFile(orchardUrl, lconfig.levelsPath / "orchard.db")
-  client.downloadFile(statusUrl, lconfig.levelsPath / "status.db")
+  const orchardUrl = "https://datasette.rhythm.cafe/rdlevels.db"
+  client.downloadFile(orchardUrl, lconfig.levelsPath / orchardDbName)
 
 proc setupDbConnection*(): DbConn =
-  ## Combines orchard and localLevel dbs and makes a view
+  ## Loads both orchard and local levels, creats a view of orchard levels that
+  ## only reveals levels allowed by the user config.
   ## Returned connection must be closed
-  result = open(lconfig.levelsPath / "orchard.db", "", "", "")
+  result = open(lconfig.levelsPath / orchardDbName, "", "", "")
 
-  result.exec(
-    sql"ATTACH DATABASE ? as status",
-    lconfig.levelsPath / "status.db"
-  )
   result.exec(
     sql"ATTACH DATABASE ? as localLevels",
     lconfig.localLevelsDbPath
@@ -42,22 +39,16 @@ proc setupDbConnection*(): DbConn =
     if lconfig.checkedOnly: sql"""
       CREATE TEMP VIEW orchardLevels AS
         SELECT
-          level.id,
-          url2
+          id
         FROM
-          level
-        LEFT JOIN status ON status.id = level.id
-        WHERE COALESCE(status.approval, 0) > 0
-        AND (source = 'yeoldesheet' OR source = 'rdl' OR source = 'prescriptions')
+          rdlevels
+        WHERE approval > 0
     """
     else: sql"""
       CREATE TEMP VIEW orchardLevels AS
         SELECT
-          level.id,
-          url2
+          id
         FROM
-          level
-        LEFT JOIN status ON status.id = level.id
-        WHERE source = 'yeoldesheet' OR source = 'rdl' OR source = 'prescriptions'
+          rdlevels
     """
   result.exec(viewQuery)
