@@ -13,7 +13,7 @@
   in {
     devShell."x86_64-linux" = pkgs.mkShell {
       buildInputs = [
-        pkgs.nim2
+        pkgs.nim
         pkgs.nimble
         pkgs.sqlite
       ];
