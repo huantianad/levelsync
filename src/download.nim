@@ -43,6 +43,7 @@ proc getFilenameImpl(url: Uri, resp: Response): Option[string] =
   # Extract filename from Content-Disposition header
   const prefix = "attachment;"
   let cd = resp.headers.getOrDefault("Content-Disposition")
+  info "content-dispo", cd = cd
 
   if cd.startsWith(prefix):
     let cdData = cd[prefix.len..^1].parseCookies()
@@ -104,7 +105,8 @@ proc downloadLevel*(client: HttpClient, url: Uri, folder: string): string =
   finally:
     file.close()
 
-  let filePath = ensureDirname(folder / getFilename(url, resp).removeExtension)
+  let filename = getFilename(url, resp)
+  let filePath = ensureDirname(folder / filename.removeExtension)
   extractAll(tempFile, filePath)
 
   # Ensure all extracted file have proper file permissions.
